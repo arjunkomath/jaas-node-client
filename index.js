@@ -1,9 +1,17 @@
 var request = require('request');
-var API_URL = 'https://api.jaas.tech';
 
 module.exports = {
 
 	API_KEY: null,
+
+	API_URL: 'https://api.jaas.tech',
+
+	init: function(api_key) {
+		if(!api_key)
+			throw ('API key is missing')
+		this.API_KEY = api_key;
+		this.API_URL = 'https://api.jaas.tech/private'
+	},
 
 	response: function(cb) {
 		return function(error, response, body) {
@@ -19,13 +27,27 @@ module.exports = {
 	},
 
 	ping: function(cb) {
-		request(API_URL+'/ping', this.response(cb))
+		var options = {
+			method: 'get',
+			headers: { 'Content-Type': 'application/json' },
+			url: this.API_URL + '/ping'
+		}
+		if(this.API_KEY)
+			options.headers = { 'Content-Type': 'application/json', 'x-jaas-token': this.API_KEY };
+		request(options, this.response(cb))
 	},
 
 	get: function(id, cb) {
 		if(!id)
 			throw ('ID is missing');
-		request(API_URL+'/{id}'.replace('{id}', id), this.response(cb))
+		var options = {
+			method: 'get',
+			headers: { 'Content-Type': 'application/json' },
+			url: this.API_URL+'/{id}'.replace('{id}', id)
+		}
+		if(this.API_KEY)
+			options.headers = { 'Content-Type': 'application/json', 'x-jaas-token': this.API_KEY };
+		request(options, this.response(cb))
 	},
 
 	post: function(obj, cb) {
@@ -35,8 +57,10 @@ module.exports = {
 			method: 'post',
 			body: JSON.stringify(obj),
 			headers: { 'Content-Type': 'application/json' },
-			url: API_URL
+			url: this.API_URL
 		}
+		if(this.API_KEY)
+			options.headers = { 'Content-Type': 'application/json', 'x-jaas-token': this.API_KEY };
 		request(options, this.response(cb))
 	},
 
@@ -49,8 +73,10 @@ module.exports = {
 			method: 'put',
 			body: JSON.stringify(obj),
 			headers: { 'Content-Type': 'application/json' },
-			url: API_URL+'/{id}'.replace('{id}', id)
+			url: this.API_URL+'/{id}'.replace('{id}', id)
 		}
+		if(this.API_KEY)
+			options.headers = { 'Content-Type': 'application/json', 'x-jaas-token': this.API_KEY };
 		request(options, this.response(cb))
 	},
 
@@ -59,8 +85,10 @@ module.exports = {
 			throw ('ID is missing');
 		var options = {
 			method: 'delete',
-			url: API_URL+'/{id}'.replace('{id}', id)
+			url: this.API_URL+'/{id}'.replace('{id}', id)
 		}
+		if(this.API_KEY)
+			options.headers = { 'Content-Type': 'application/json', 'x-jaas-token': this.API_KEY };
 		request(options, this.response(cb))
 	}
 
