@@ -4,13 +4,14 @@ module.exports = {
 
 	API_KEY: null,
 
-	API_URL: 'https://api.jaas.tech',
+	API_URL: 'https://api.jaas.tech/collections',
+	COLLECTION_URL: 'https://api.jaas.tech/collections/{collection}',
+	ITEM_URL: 'https://api.jaas.tech/collections/{collection}/{id}',
 
 	init: function(api_key) {
 		if(!api_key)
-			throw ('API key is missing')
+			throw new Error('API key is missing')
 		this.API_KEY = api_key;
-		this.API_URL = 'https://api.jaas.tech/private'
 	},
 
 	response: function(cb) {
@@ -26,70 +27,91 @@ module.exports = {
 		}
 	},
 
-	ping: function(cb) {
-		var options = {
+	collection: function(collection, where, cb) {
+		if(!collection)
+			throw new Error('Collection name missing');
+		var requestObj = {
 			method: 'get',
-			headers: { 'Content-Type': 'application/json' },
-			url: this.API_URL + '/ping'
+			headers: {
+				"Content-type": "application/json",
+				"x-jaas-token": this.API_KEY,
+			},
+			url: this.COLLECTION_URL.replace('{collection}', collection)
+		};
+		if(typeof(where) == 'function')
+			request(requestObj, this.response(where));
+		else {
+			requestObj.url = this.COLLECTION_URL.replace('{collection}', collection) + '?query=' + JSON.stringify(where);
+			request(requestObj, this.response(cb));
 		}
-		if(this.API_KEY)
-			options.headers = { 'Content-Type': 'application/json', 'x-jaas-token': this.API_KEY };
-		request(options, this.response(cb))
 	},
 
-	get: function(id, cb) {
+	readItem: function(collection, id, cb) {
+		if(!collection)
+			throw new Error('Collection name missing');
 		if(!id)
-			throw ('ID is missing');
-		var options = {
+			throw new Error('Item ID missing');
+		var requestObj = {
 			method: 'get',
-			headers: { 'Content-Type': 'application/json' },
-			url: this.API_URL+'/{id}'.replace('{id}', id)
-		}
-		if(this.API_KEY)
-			options.headers = { 'Content-Type': 'application/json', 'x-jaas-token': this.API_KEY };
-		request(options, this.response(cb))
+			headers: {
+				"Content-type": "application/json",
+				"x-jaas-token": this.API_KEY,
+			},
+			url: this.ITEM_URL.replace('{collection}', collection).replace('{id}', id)
+		};
+		request(requestObj, this.response(cb));
 	},
 
-	post: function(obj, cb) {
+	createItem: function(collection, obj, cb) {
+		if(!collection)
+			throw new Error('Collection name missing');
 		if(!obj)
-			throw ('json is missing');
-		var options = {
+			throw new Error('Data missing');
+		var requestObj = {
 			method: 'post',
-			body: JSON.stringify(obj),
-			headers: { 'Content-Type': 'application/json' },
-			url: this.API_URL
-		}
-		if(this.API_KEY)
-			options.headers = { 'Content-Type': 'application/json', 'x-jaas-token': this.API_KEY };
-		request(options, this.response(cb))
+			headers: {
+				"Content-type": "application/json",
+				"x-jaas-token": this.API_KEY,
+			},
+			url: this.COLLECTION_URL.replace('{collection}', collection),
+			body: JSON.stringify(obj)
+		};
+		request(requestObj, this.response(cb));
 	},
 
-	put: function(id, obj, cb) {
+	updateItem: function(collection, id, obj, cb) {
+		if(!collection)
+			throw new Error('Collection name missing');
 		if(!id)
-			throw ('ID is missing');
+			throw new Error('Item ID missing');
 		if(!obj)
-			throw ('json is missing');
-		var options = {
+			throw new Error('Data missing');
+		var requestObj = {
 			method: 'put',
+			headers: {
+				"Content-type": "application/json",
+				"x-jaas-token": this.API_KEY
+			},
 			body: JSON.stringify(obj),
-			headers: { 'Content-Type': 'application/json' },
-			url: this.API_URL+'/{id}'.replace('{id}', id)
-		}
-		if(this.API_KEY)
-			options.headers = { 'Content-Type': 'application/json', 'x-jaas-token': this.API_KEY };
-		request(options, this.response(cb))
+			url: this.ITEM_URL.replace('{collection}', collection).replace('{id}', id)
+		};
+		request(requestObj, this.response(cb));
 	},
 
-	delete: function(id, cb) {
+	deleteItem: function(collection, id, cb) {
+		if(!collection)
+			throw new Error('Collection name missing');
 		if(!id)
-			throw ('ID is missing');
-		var options = {
+			throw new Error('Item ID missing');
+		var requestObj = {
 			method: 'delete',
-			url: this.API_URL+'/{id}'.replace('{id}', id)
-		}
-		if(this.API_KEY)
-			options.headers = { 'Content-Type': 'application/json', 'x-jaas-token': this.API_KEY };
-		request(options, this.response(cb))
+			headers: {
+				"Content-type": "application/json",
+				"x-jaas-token": this.API_KEY
+			},
+			url: this.ITEM_URL.replace('{collection}', collection).replace('{id}', id)
+		};
+		request(requestObj, this.response(cb));
 	}
 
 }
