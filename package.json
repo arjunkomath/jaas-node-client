@@ -1,6 +1,6 @@
 {
   "name": "jaas-node",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "JAAS node client",
   "main": "index.js",
   "scripts": {
