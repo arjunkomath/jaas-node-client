@@ -7,38 +7,63 @@ npm install jaas-node
 ```
 
 ##Usage
+Get your API key from https://app.jaas.tech/
 ```
 var jaas = require("jaas-node");
+jaas.init('<Your API Key>');
 ```
 
-###Create json document
+###Create a Collection
+A collection is created when you put the first item into it.
 ```
-jaas.post(json_doc, function(err, data) {
-	if(err) return console.log('Error: ' + err);
-	console.log(data);
-})
-```
-
-###Read json document
-```
-jaas.get(id, function(err, data) {
-	if(err) return console.log('Error: ' + err);
-	console.log(data);
-})
+jaas.createItem('<Collection Name>', <JSON object>, function(err, data) {
+  if(err) console.log(err);
+  console.log(data);
+});
 ```
 
-###Update json document
+###Read a Collection
+It will return an array of objects
 ```
-jaas.put(id, json_doc, function(err, data) {
-	if(err) return console.log('Error: ' + err);
-	console.log(data);
-})
+jaas.collection('<Collection Name>', function(err, data) {
+  if(err) console.log(err);
+  console.log(data);
+});
 ```
 
-###Delete json document
+Read a collection with filter
 ```
-jaas.delete(id, function(err, data) {
-	if(err) return console.log('Error: ' + err);
-	console.log(data);
-})
+jaas.collection('<Collection Name>', { "name" : { "like" : "matt" } }, function(err, data) {
+  if(err) console.log(err);
+  console.log(data);
+});
 ```
+
+Refer to the API docs to [read more about filters](http://docs.jaas.apiary.io/#reference/0/collections).
+
+###Read an item in Collection
+```
+jaas.readItem('<Collection Name>', '<Item ID>', function(err, data) {
+  if(err) console.log(err);
+  console.log(data);
+});
+```
+
+###Update an item in Collection
+```
+jaas.updateItem('<Collection Name>', '<Item ID>', <JSON object>, function(err, data) {
+  if(err) console.log(err);
+  console.log(data);
+});
+```
+
+###Delete an item in Collection
+```
+jaas.deleteItem('<Collection Name>', '<Item ID>', function(err, data) {
+  if(err) console.log(err);
+  console.log(data);
+});
+```
+
+###Help?
+email arjunkomath@gmail.com
